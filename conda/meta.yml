@@ -1,0 +1,30 @@
+{% set version = "0.1.0" %}
+package:
+  name: bnn
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+  build:
+    - setuptools
+    - python
+  run:
+    - python
+    - pytorch
+
+about:
+  home: https://github.com/1adrianb/binary-networks-pytorch
+  license: BSD
+  license_file: LICENSE
+  summary: Binary Neural Networks in PyTorch
+
+extra:
+  recipe-maintainers:
+    - 1adrianb

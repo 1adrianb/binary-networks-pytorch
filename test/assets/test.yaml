@@ -1,0 +1,35 @@
+# Define a list of steps that should be followed
+step0:
+  pre_activation:
+    name: "BasicInputBinarizer"
+  post_activation:
+    name: "BasicScaleBinarizer"
+  weight:
+    name: "nn.Identity"
+  # Either provide the layers name, or use one of the reserved keyword as shown bellow
+  ignore_layer_names:
+    - "_last_"
+    - "_first_"
+step1:
+  pre_activation:
+    name: "BasicInputBinarizer"
+  post_activation:
+    name: "BasicScaleBinarizer"
+  weight:
+    name: "XNORWeightBinarizer"
+    args:
+      compute_alpha: True
+      center_weights: True
+  ignore_layer_names:
+    - "_last_"
+    - "_first_"
+step2:
+  pre_activation:
+    name: "BasicInputBinarizer"
+  post_activation:
+    name: "BasicScaleBinarizer"
+  weight:
+    name: "XNORWeightBinarizer"
+    args:
+      compute_alpha: True
+      center_weights: False
