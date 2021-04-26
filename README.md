@@ -1,6 +1,6 @@
 # Binary Neural Networks (BNN)
 
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) ![Python package](https://github.com/1adrianb/binary-networks-pytorch/workflows/Python%20package/badge.svg)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause) [![PyPI](https://img.shields.io/pypi/v/bnn.svg?style=flat)](https://pypi.org/project/bnn/)
 
 BNN is a Pytorch based library that facilitates the binarization (i.e. 1 bit quantization) of neural networks.
 
