@@ -13,7 +13,7 @@ def _option_builder_helper(partial_config: Dict[str, str]) -> str:
         end_string = ')'
         content = ''
         for k, v in partial_config.args.items():
-            content += '{}={},'.format_map(k, v)
+            content += '{}={},'.format(k, v)
         final_string = start_string + content + end_string
 
         return final_string
