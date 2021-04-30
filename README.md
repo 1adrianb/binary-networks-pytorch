@@ -45,7 +45,7 @@ from bnn.ops import BasicInputBinarizer, BasicScaleBinarizer, XNORWeightBinarize
 model = models.resnet18(pretrained=False)
 
 # Define the binarization configuration and assign it to the model
-model.bconfig = BConfig(
+bconfig = BConfig(
     activation_pre_process = BasicInputBinarizer,
     activation_post_process = BasicScaleBinarizer,
     # optionally, one can pass certain custom variables
@@ -106,7 +106,7 @@ class CustomInputBinarizer(nn.Module):
         return torch.tanh(x) # operate on the conv_output
 
 # apply the custom functions into the binarization model
-model.bconfig = BConfig(
+bconfig = BConfig(
     activation_pre_process = CustomInputBinarizer,
     activation_post_process = CustomOutputBinarizer,
     weight_pre_process = nn.Identity # this will keep the weights real
