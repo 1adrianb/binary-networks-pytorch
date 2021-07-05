@@ -31,8 +31,8 @@ class BasicBlock(nn.Module):
         self.bn1 = norm_layer(planes)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = norm_layer(planes)
-        self.act1 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=planes)
-        self.act2 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=planes)
+        self.act1 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=planes)
+        self.act2 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=planes)
 
         self.downsample = downsample
         self.stride = stride
@@ -87,10 +87,10 @@ class Bottleneck(nn.Module):
         self.bn2 = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(planes * self.expansion)
-        self.act1 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=width)
-        self.act2 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=width)
+        self.act1 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=width)
+        self.act2 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=width)
         self.act3 = activation(
-            inpace=True) if activation == nn.ReLU else activation(
+            inplace=True) if activation == nn.ReLU else activation(
             num_parameters=planes * self.expansion)
         self.downsample = downsample
         self.stride = stride
@@ -144,8 +144,8 @@ class PreBasicBlock(nn.Module):
         self.bn1 = norm_layer(inplanes)
         self.conv2 = conv3x3(planes, planes)
         self.bn2 = norm_layer(planes)
-        self.act1 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=planes)
-        self.act2 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=planes)
+        self.act1 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=planes)
+        self.act2 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=planes)
         self.downsample = downsample
         self.stride = stride
 
@@ -198,10 +198,10 @@ class PreBottleneck(nn.Module):
         self.bn2 = norm_layer(width)
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.bn3 = norm_layer(width)
-        self.act1 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=width)
-        self.act2 = activation(inpace=True) if activation == nn.ReLU else activation(num_parameters=width)
+        self.act1 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=width)
+        self.act2 = activation(inplace=True) if activation == nn.ReLU else activation(num_parameters=width)
         self.act3 = activation(
-            inpace=True) if activation == nn.ReLU else activation(
+            inplace=True) if activation == nn.ReLU else activation(
             num_parameters=planes * self.expansion)
         self.downsample = downsample
         self.stride = stride
