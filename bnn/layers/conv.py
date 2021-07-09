@@ -23,7 +23,7 @@ class Conv1d(nn.Conv1d):
         padding_mode: str = 'zeros',
         bconfig: BConfig = None
     ) -> None:
-        super(Conv2d, self).__init__(in_channels, out_channels, kernel_size,
+        super(Conv1d, self).__init__(in_channels, out_channels, kernel_size,
                                      stride=stride, padding=padding, dilation=dilation,
                                      groups=groups, bias=bias, padding_mode=padding_mode)
         assert bconfig, 'bconfig is required for a binarized module'
@@ -34,8 +34,10 @@ class Conv1d(nn.Conv1d):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         input_proc = self.activation_pre_process(input)
+        input_proc = self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias)
+        
         return self.activation_post_process(
-            self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias),
+            input_proc,
             input
         )
 
@@ -87,8 +89,10 @@ class Conv2d(nn.Conv2d):
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         input_proc = self.activation_pre_process(input)
+        input_proc = self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias)
+        
         return self.activation_post_process(
-            self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias),
+            input_proc,
             input
         )
 
