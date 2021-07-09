@@ -3,7 +3,7 @@ import re
 from easydict import EasyDict as edict
 from typing import List, Callable, Dict
 
-from . import BConfig, prepare_binary_model
+from . import BConfig, prepare_binary_model, Identity
 from .ops import *
 
 

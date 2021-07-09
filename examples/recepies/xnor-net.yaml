@@ -3,7 +3,7 @@ step0:
   pre_activation:
     name: "BasicInputBinarizer"
   post_activation:
-    NAME: "nn.Identity"
+    NAME: "Identity"
   weight:
     name: "XNORWeightBinarizer"
     args:

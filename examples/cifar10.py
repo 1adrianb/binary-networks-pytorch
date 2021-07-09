@@ -14,7 +14,7 @@ from bnn.ops import  (
     BasicInputBinarizer,
     XNORWeightBinarizer
 )
-from bnn import BConfig, prepare_binary_model
+from bnn import BConfig, prepare_binary_model, Identity
 from  bnn.models.resnet import resnet18
 
 from .utils import AverageMeter, ProgressMeter, accuracy
@@ -64,7 +64,7 @@ net = resnet18()
 print('==> Preparing the model for binarization')
 bconfig = BConfig(
             activation_pre_process = BasicInputBinarizer,
-            activation_post_process = nn.Identity,
+            activation_post_process = Identity,
             weight_pre_process = XNORWeightBinarizer
         )
 # first and last layer will be kept FP32
