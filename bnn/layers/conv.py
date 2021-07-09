@@ -36,9 +36,6 @@ class Conv1d(nn.Conv1d):
         input_proc = self.activation_pre_process(input)
         input_proc = self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias)
         
-        if isinstance(input_proc, tuple) and len(input_proc) == 1:
-            input_proc = input_proc[0]
-        
         return self.activation_post_process(
             input_proc,
             input
@@ -93,9 +90,6 @@ class Conv2d(nn.Conv2d):
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         input_proc = self.activation_pre_process(input)
         input_proc = self._conv_forward(input_proc, self.weight_pre_process(self.weight), bias=self.bias)
-        
-        if isinstance(input_proc, tuple) and len(input_proc) == 1:
-            input_proc = input_proc[0]
         
         return self.activation_post_process(
             input_proc,
