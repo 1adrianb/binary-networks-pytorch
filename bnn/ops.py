@@ -117,6 +117,8 @@ class XNORWeightBinarizer(BinarizerBase):
         n = x[0].nelement()
         if x.dim() == 4:
             alpha = x.norm(1, 3, keepdim=True).sum([2, 1], keepdim=True).div_(n)
+        elif x.dim() == 3:
+            alpha = x.norm(1, 2, keepdim=True).sum([1], keepdim=True).div_(n)
         elif x.dim() == 2:
             alpha = x.norm(1, 1, keepdim=True).div_(n)
         else:
