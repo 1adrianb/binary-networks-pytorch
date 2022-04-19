@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# CIFAR10 Data
+data/
+
+# Training checkpoints
+checkpoint/
