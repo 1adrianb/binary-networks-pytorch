@@ -16,7 +16,7 @@ def run_experiment(model, dataloaders, experiment_name, target):
     new_conf.EXPERIMENT.DIR = os.path.join(
         env_config.EXPERIMENT.DIR, experiment_name
     )
-    logger = LoggerUnited(env_config, online_logger="tensorboard")
+    logger = LoggerUnited(new_conf, online_logger="tensorboard")
 
     optimizer = {
         "main": (

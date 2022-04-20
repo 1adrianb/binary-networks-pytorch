@@ -20,7 +20,7 @@ class Trainer:
         log_arch=False,
         dataset_opt_link=None,
         log_training=False,
-        trainer_name="",
+        trainer_name="#",
     ):
 
         # can be a list of optimizers / probably need a dictionary ??
@@ -171,7 +171,7 @@ class Trainer:
                 f"{self.trainer_name }_val", metrics_val, epoch
             )
             self.logger.log_metrics(
-                f"{self.trainer_name }_val", metrics_train, epoch
+                f"{self.trainer_name }_train", metrics_train, epoch
             )
 
     def _iterate_one_epoch(self, phase):
