@@ -20,6 +20,7 @@ def _with_args(cls_or_self: Any, **kwargs: Dict[str, Any]) -> Any:
         >>> id(foo_instance1) == id(foo_instance2)
         False
     """
+
     class _PartialWrapper(object):
         def __init__(self, p):
             self.p = p
@@ -31,8 +32,26 @@ def _with_args(cls_or_self: Any, **kwargs: Dict[str, Any]) -> Any:
             return self.p.__repr__()
 
         with_args = _with_args
+
     r = _PartialWrapper(partial(cls_or_self, **kwargs))
     return r
+
+
+def quant_noise(x, bit, n_type="gaussian"):
+    tensor = x.clone()
+    flat = tensor.view(-1)
+    scale = flat.max() - flat.min()
+    unit = 1 / (2**bit - 1)
+
+    if n_type == "uniform":
+        noise_source = torch.rand_like(flat) - 0.5
+    elif n_type == "gaussian":
+        noise_source = torch.randn_like(flat) / 2
+
+    noise = scale * unit * noise_source
+    noisy = flat + noise
+    return noisy.view_as(tensor).detach()
+
 
 ABC = ABCMeta(str("ABC"), (object,), {})
 
@@ -60,6 +79,7 @@ class SignActivation(torch.autograd.Function):
         >>> input = torch.randn(3)
         >>> output = SignActivation.apply(input)
     """
+
     @staticmethod
     def forward(ctx, input: torch.Tensor) -> torch.Tensor:
         ctx.save_for_backward(input)
@@ -67,7 +87,7 @@ class SignActivation(torch.autograd.Function):
 
     @staticmethod
     def backward(ctx, grad_output: torch.Tensor) -> torch.Tensor:
-        input, = ctx.saved_tensors
+        (input,) = ctx.saved_tensors
         grad_input = grad_output.clone()
         grad_input.masked_fill_(input.ge(1) | input.le(-1), 0)
         return grad_input
@@ -85,11 +105,20 @@ class SignActivationStochastic(SignActivation):
         >>> input = torch.randn(3)
         >>> output = SignActivationStochastic.apply(input)
     """
+
     @staticmethod
     def forward(ctx, input: torch.Tensor) -> torch.Tensor:
         ctx.save_for_backward(input)
         noise = torch.rand_like(input).sub_(0.5)
-        return input.add_(1).div_(2).add_(noise).clamp_(0, 1).round_().mul_(2).sub_(1)
+        return (
+            input.add_(1)
+            .div_(2)
+            .add_(noise)
+            .clamp_(0, 1)
+            .round_()
+            .mul_(2)
+            .sub_(1)
+        )
 
 
 class XNORWeightBinarizer(BinarizerBase):
@@ -108,7 +137,9 @@ class XNORWeightBinarizer(BinarizerBase):
         center_weights: make the weights zero-mean
     """
 
-    def __init__(self, compute_alpha: bool = True, center_weights: bool = False) -> None:
+    def __init__(
+        self, compute_alpha: bool = True, center_weights: bool = False
+    ) -> None:
         super(XNORWeightBinarizer, self).__init__()
         self.compute_alpha = compute_alpha
         self.center_weights = center_weights
@@ -122,7 +153,9 @@ class XNORWeightBinarizer(BinarizerBase):
         elif x.dim() == 2:
             alpha = x.norm(1, 1, keepdim=True).div_(n)
         else:
-            raise ValueError(f"Expected ndims equal with 2 or 4, but found {x.dim()}")
+            raise ValueError(
+                f"Expected ndims equal with 2 or 4, but found {x.dim()}"
+            )
 
         return alpha
 
@@ -150,6 +183,37 @@ class BasicInputBinarizer(BinarizerBase):
 
     def forward(self, x: torch.Tensor) -> None:
         return SignActivation.apply(x)
+
+
+class TanhBinarizer(BinarizerBase):
+    r"""Applies the sign function element-wise.
+    nn.Module version of SignActivation.
+    """
+
+    def __init__(self):
+        super(TanhBinarizer, self).__init__()
+
+    def forward(self, x: torch.Tensor) -> None:
+        if self.training:
+            return torch.tanh(x)
+        else:
+            return SignActivation.apply(x)
+
+
+class NoisyTanhBinarizer(BinarizerBase):
+    r"""Applies the sign function element-wise.
+    nn.Module version of SignActivation.
+    """
+
+    def __init__(self):
+        super(NoisyTanhBinarizer, self).__init__()
+
+    def forward(self, x: torch.Tensor) -> None:
+        if self.training:
+            x = torch.tanh(x)
+            return 0.7 * x + 0.3 * quant_noise(x, 1)
+        else:
+            return SignActivation.apply(x)
 
 
 class StochasticInputBinarizer(BinarizerBase):
@@ -186,10 +250,14 @@ class BasicScaleBinarizer(BinarizerBase):
         elif isinstance(module, nn.Conv2d):
             num_channels = module.out_channels
         else:
-            if hasattr(module, 'out_channels'):
+            if hasattr(module, "out_channels"):
                 num_channels = module.out_channels
             else:
-                raise Exception('Unknown layer of type {} missing out_channels'.format(type(module)))
+                raise Exception(
+                    "Unknown layer of type {} missing out_channels".format(
+                        type(module)
+                    )
+                )
 
         if shape is None:
             alpha_shape = [1, num_channels] + [1] * (module.weight.dim() - 2)
@@ -197,12 +265,14 @@ class BasicScaleBinarizer(BinarizerBase):
             alpha_shape = shape
         self.alpha = nn.Parameter(torch.ones(*alpha_shape))
 
-    def forward(self, layer_out: torch.Tensor, layer_in: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, layer_out: torch.Tensor, layer_in: torch.Tensor
+    ) -> torch.Tensor:
         x = layer_out
         return x.mul_(self.alpha)
 
     def extra_repr(self) -> str:
-        return '{}'.format(list(self.alpha.size()))
+        return "{}".format(list(self.alpha.size()))
 
 
 class XNORScaleBinarizer(BinarizerBase):
@@ -211,11 +281,19 @@ class XNORScaleBinarizer(BinarizerBase):
         kernel_size = module.kernel_size
         self.stride = module.stride
         self.padding = module.padding
-        self.register_buffer('fixed_weight', torch.ones(*kernel_size).div_(math.prod(kernel_size)), persistent=False)
+        self.register_buffer(
+            "fixed_weight",
+            torch.ones(*kernel_size).div_(math.prod(kernel_size)),
+            persistent=False,
+        )
 
-    def forward(self, layer_out: torch.Tensor, layer_in: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, layer_out: torch.Tensor, layer_in: torch.Tensor
+    ) -> torch.Tensor:
         x = layer_out
         scale = torch.mean(dim=1, keepdim=True)
-        scale = F.conv2d(scale, self.fixed_weight, stride=self.stride, padding=self.padding)
+        scale = F.conv2d(
+            scale, self.fixed_weight, stride=self.stride, padding=self.padding
+        )
 
         return x.mul_(scale)
