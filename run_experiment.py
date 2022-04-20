@@ -10,7 +10,7 @@ from trainers.metrics import get_metrics_and_loss
 def run_experiment(model, dataloaders, experiment_name, target):
 
     env_config = omg.load(
-        "/home/dev/work_main/2022/NASH/NASLib/configs/env.yaml"
+        "/home/dev/work_main/2022/binary/bnp/configs/env.yaml"
     )
     new_conf = copy.deepcopy(env_config)
     new_conf.EXPERIMENT.DIR = os.path.join(
@@ -40,6 +40,7 @@ def run_experiment(model, dataloaders, experiment_name, target):
         num_epochs=10,
         device=1,
         logger=logger,
+        log_training=True,
     )
 
     trainer.set_model(model, {"main": model.parameters()})
