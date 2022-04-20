@@ -164,11 +164,15 @@ class Trainer:
 
     def _log_metrics(self, epoch):
         if self.logging:
-            metrics = self.get_last_epoch_metrics(phase="validation")
-            for key in metrics:
-                self.logger.log_metrics(
-                    f"{self.trainer_name }_val", metrics, epoch
-                )
+            metrics_val = self.get_last_epoch_metrics(phase="validation")
+            metrics_train = self.get_last_epoch_metrics(phase="train")
+
+            self.logger.log_metrics(
+                f"{self.trainer_name }_val", metrics_val, epoch
+            )
+            self.logger.log_metrics(
+                f"{self.trainer_name }_val", metrics_train, epoch
+            )
 
     def _iterate_one_epoch(self, phase):
         # Each epoch has a training and validation phase
