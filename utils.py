@@ -28,7 +28,7 @@ class AverageMeter(object):
         if self.is_timer:
             avg = str(datetime.timedelta(seconds=int(self.avg)))
             sum = str(datetime.timedelta(seconds=int(self.sum)))
-            fmtstr = f"{self.name} avg-{avg}(sum-{sum})"
+            fmtstr = f"{self.name} {sum}"
             return fmtstr
         else:
             fmtstr = '{name} val-{val' + self.fmt + '}(avg-{avg' + self.fmt + '})'
@@ -44,7 +44,7 @@ class ProgressMeter(object):
     def display(self, batch:int)->None:
         entries = [self.prefix + self.batch_fmtstr.format(batch)]
         entries += [str(meter) for meter in self.meters]
-        print('\t'.join(entries))
+        return ';  '.join(entries)        
 
     def _get_batch_fmtstr(self, num_batches:int)->str:
         num_digits = len(str(num_batches // 1))
