@@ -21,6 +21,7 @@ import torchvision.datasets as datasets
 from imagenet_seq.data import ImagenetLoader
 from omegaconf import OmegaConf
 from nash_logging.common import LoggerUnited
+import webdataset as wds
 
 from utils import *
 
@@ -82,14 +83,14 @@ parser.add_argument('--multiprocessing-distributed', action='store_true',
                          'N processes per node, which has N GPUs. This is the '
                          'fastest way to use PyTorch for either single node or '
                          'multi node data parallel training')
-parser.add_argument('--optimizer', type=str, choices=['sgd', 'adam', 'adamw'], default='adamw')
+parser.add_argument('--optimizer', type=str, choices=['sgd', 'adam', 'adamw'], default='adam')
 parser.add_argument('--output-dir', type=str, default='/home/dev/data_main/LOGS/BNN/')
 parser.add_argument('--scheduler', type=str, choices=['multistep', 'cosine'], default='multistep')
 parser.add_argument('--warmup', type=int, default=0)
 parser.add_argument('--stem-type', type=str, default='basic')
 parser.add_argument('--resume-epoch', action='store_true', help='if enabled, will resume the epoch')
 parser.add_argument('--step', type=int, default=1, choices=[0,1])
-parser.add_argument('--loader', type=str, choices=["base", "bayes"], default="base")
+parser.add_argument('--loader', type=str, choices=["base", "bayes", "wds"], default="base")
 
 best_acc1 = 0
 
@@ -119,13 +120,13 @@ def main():
     if not os.path.isdir(args.output_dir):
         os.makedirs(args.output_dir)
 
-    if args.dist_url == "env://" and args.world_size == -1:
-        args.world_size = int(os.environ["WORLD_SIZE"])
+    # if args.dist_url == "env://" and args.world_size == -1:
+    #     args.world_size = int(os.environ["WORLD_SIZE"])
 
-    args.distributed = args.world_size > 1 or args.multiprocessing_distributed
+    args.distributed = False #args.world_size > 1 or args.multiprocessing_distributed
 
     ngpus_per_node = torch.cuda.device_count()
-    if args.multiprocessing_distributed:
+    if False: #args.multiprocessing_distributed:
         # Since we have ngpus_per_node processes per node, the total world_size
         # needs to be adjusted accordingly
         args.world_size = ngpus_per_node * args.world_size
@@ -135,6 +136,7 @@ def main():
     else:
         # Simply call main_worker function
         main_worker(args.gpu, ngpus_per_node, args, logger)
+    logger.shutdown_logging()
 
 
 def main_worker(gpu, ngpus_per_node, args, logger):
@@ -306,6 +308,31 @@ def main_worker(gpu, ngpus_per_node, args, logger):
             batch_size=args.batch_size, num_workers=args.workers, shuffle=True)
         val_loader = ImagenetLoader(args.data, 'val', transforms_val,
             batch_size=args.batch_size, num_workers=args.workers, shuffle=False)
+    elif args.loader == "wds":
+        logger.log("Using WebDataset...")
+        url = args.data + "/imagenet-train-{000000..000146}.tar"
+        train_dataset = (
+            wds.WebDataset(url)
+            .decode("pil")
+            .to_tuple("jpg", "cls")
+            .map_tuple(transforms_train, lambda x:x)
+            .shuffle(1000)
+        )
+        url = args.data + "/imagenet-val-{000000..000006}.tar"
+        val_dataset = (
+            wds.WebDataset(url)
+            .decode("pil")
+            .to_tuple("jpg", "cls")
+            .map_tuple(transforms_val, lambda x:x)
+        )
+        train_loader = torch.utils.data.DataLoader(
+            train_dataset, batch_size=args.batch_size, shuffle=False,
+            num_workers=args.workers, pin_memory=True, sampler=None)
+
+        val_loader = torch.utils.data.DataLoader(
+            val_dataset,
+            batch_size=args.batch_size, shuffle=False,
+            num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
         validate(val_loader, model, criterion, args)
@@ -355,7 +382,8 @@ def train(train_loader, model, criterion, optimizer, epoch, args, logger):
     all_meters = [batch_time, data_time, losses, top1, top5]
     
     progress = ProgressMeter(
-        len(train_loader),
+        # len(train_loader),
+        1281167 // args.batch_size,
         all_meters,
         prefix="Epoch: [{}]".format(epoch))
 
@@ -401,7 +429,7 @@ def validate(val_loader, model, criterion, args, logger):
     top1 = AverageMeter('Acc@1', ':.2f')
     top5 = AverageMeter('Acc@5', ':.2f')
     progress = ProgressMeter(
-        len(val_loader),
+        50000 / args.batch_size, #len(val_loader),
         [batch_time, losses, top1, top5],
         prefix='Test: ')
 

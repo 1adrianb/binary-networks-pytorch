@@ -12,9 +12,9 @@ HARDWARE:
   WORKERS: 6
 
 EXPERIMENT: 
-  DIR: "/home/dev/data_main/LOGS/BNN/binary_experiment/" # where to save data
+  DIR: "/home/dev/data_main/LOGS/BNN/binary_experiment_wds/" # where to save data
 
 PARAMS:
   gpu: 0
-  data: /home/dev/data_main/imagenet
-  loader: base
+  data: /home/dev/data_main/imagenet_shards/
+  loader: wds
