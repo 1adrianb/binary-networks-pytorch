@@ -187,8 +187,6 @@ class Trainer:
         n_batches = len(self.dataloaders[phase])
         for batch in tqdm(self.dataloaders[phase], total=n_batches):
             batch = self._process_batch(batch)
-            self._opt_zero_grad(phase)
-
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase.startswith("train")):
@@ -201,6 +199,7 @@ class Trainer:
                 if phase.startswith("train"):
                     self.metrics[phase]["loss"].last_value.backward()
                     self._opt_step(phase)
+                    self._opt_zero_grad(phase)
 
         # use as a dummy input to compute a graph
         self.last_batch = batch

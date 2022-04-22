@@ -157,7 +157,7 @@ class XNORWeightBinarizer(BinarizerBase):
                 f"Expected ndims equal with 2 or 4, but found {x.dim()}"
             )
 
-        return alpha
+        return alpha.detach()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.center_weights:
@@ -166,7 +166,8 @@ class XNORWeightBinarizer(BinarizerBase):
 
         if self.compute_alpha:
             alpha = self._compute_alpha(x)
-            x = SignActivation.apply(x).mul_(alpha.expand_as(x))
+            x = SignActivation.apply(x)
+            x = x.mul_(alpha.expand_as(x))
         else:
             x = SignActivation.apply(x)
 
@@ -186,23 +187,24 @@ class BasicInputBinarizer(BinarizerBase):
 
 
 class TanhBinarizer(BinarizerBase):
-    r"""Applies the sign function element-wise.
-    nn.Module version of SignActivation.
+    r"""Applies the tanh function element-wise during
+    training and sign on validation.
     """
 
-    def __init__(self):
+    def __init__(self, t: int = 1):
         super(TanhBinarizer, self).__init__()
+        self.t = t
 
     def forward(self, x: torch.Tensor) -> None:
         if self.training:
-            return torch.tanh(x)
+            return torch.tanh(x * self.t)
         else:
             return SignActivation.apply(x)
 
 
 class NoisyTanhBinarizer(BinarizerBase):
-    r"""Applies the sign function element-wise.
-    nn.Module version of SignActivation.
+    r"""Applies the tanh function element-wise with addiotional noise
+    during training and sign on validation.
     """
 
     def __init__(self):
