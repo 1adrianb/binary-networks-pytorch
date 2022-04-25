@@ -207,7 +207,7 @@ class BasicScaleBinarizer(BinarizerBase):
 
 class XNORScaleBinarizer(BinarizerBase):
     def __init__(self, module: nn.Module) -> None:
-        super(BasicScaleBinarizer, self).__init__()
+        super(XNORScaleBinarizer, self).__init__()
         kernel_size = module.kernel_size
         self.stride = module.stride
         self.padding = module.padding

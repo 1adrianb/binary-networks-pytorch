@@ -161,7 +161,7 @@ def main_worker(gpu, ngpus_per_node, args, logger):
     # create model
     logger.log("=> creating model '{}'".format(args.arch))
     model = models.__dict__[args.arch](stem_type=args.stem_type, num_classes=num_classes, block_type=models.PreBasicBlock, activation=nn.PReLU)
-    bchef = BinaryChef('examples/recepies/imagenet-baseline.yaml')
+    bchef = BinaryChef('examples/recepies/xnor-net-plus.yaml')
     model = bchef.run_step(model, args.step) # TODO Where the second step?
     logger.log(model)
 
@@ -429,7 +429,7 @@ def validate(val_loader, model, criterion, args, logger):
     top1 = AverageMeter('Acc@1', ':.2f')
     top5 = AverageMeter('Acc@5', ':.2f')
     progress = ProgressMeter(
-        50000 / args.batch_size, #len(val_loader),
+        50000 // args.batch_size, #len(val_loader),
         [batch_time, losses, top1, top5],
         prefix='Test: ')
 
