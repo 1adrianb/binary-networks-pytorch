@@ -36,12 +36,10 @@ model = prepare_binary_model(
 print(model)
 
 target = "label"
-train_loader, test_loader = get_mnist()
-loaders = {"train": train_loader, "validation": test_loader}
-run_experiment(model, loaders, "MNIST_TanhBinarizer_L", target)
+run_experiment(model, get_mnist, target)
 
 
-np.save(
-    "./filters_TanhBinarizer_L",
-    model.conv1.weight.data.detach().cpu().numpy(),
-)
+# np.save(
+#     "./filters_TanhBinarizer_L",
+#     model.conv1.weight.data.detach().cpu().numpy(),
+# )
