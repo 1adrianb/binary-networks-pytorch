@@ -15,9 +15,9 @@ parser.add_argument(
     "--filekey", action="store_true", help="use file as key (default: index)"
 )
 parser.add_argument("--maxsize", type=float, default=1e9)
-parser.add_argument("--maxcount", type=float, default=100000)
+parser.add_argument("--maxcount", type=float, default=10000)
 parser.add_argument(
-    "--shards", default="/home/dev/data_main/CORESETS/TinyImagenet_wds", help="directory where shards are written"
+    "--shards", default="/home/dev/data_main/CORESETS/TinyImagenet_wds_more", help="directory where shards are written"
 )
 parser.add_argument(
     "--data",

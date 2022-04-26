@@ -95,7 +95,7 @@ def get_tiny_image_net_wds(data_path='/home/dev/data_main/CORESETS/TinyImagenet_
         normalize,
     ])
     # TODO pass correct number of shards
-    url = data_path + "/imagenet-train-{000000..000001}.tar"
+    url = data_path + "/imagenet-train-{000000..000009}.tar"
     train_dataset = DictSet(
         wds.WebDataset(url)
         .decode("pil")
