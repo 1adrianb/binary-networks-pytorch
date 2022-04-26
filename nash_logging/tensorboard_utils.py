@@ -176,7 +176,7 @@ class TensorboardLogger:
             and iteration % log_frequency == 0
             or (iteration <= 100 and iteration % 5 == 0)
         ):
-            logging.info(f"Logging metrics. Iteration {iteration}")
+            # logging.info(f"Logging metrics. Iteration {iteration}")
             self.tb_writer.add_scalar(
                 tag="Training/Loss",
                 scalar_value=round(loss.data.cpu().item(), 5),

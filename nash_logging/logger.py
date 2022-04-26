@@ -29,13 +29,13 @@ class Logger:
 
         self.output_dir = output_dir
         logger = logging.getLogger(name)
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
 
         # create formatter
         FORMAT = (
-            "%(levelname)s %(asctime)s %(filename)s:%(lineno)4d: %(message)s"
+            "%(asctime)s | %(message)s"
         )
-        formatter = logging.Formatter(FORMAT)
+        formatter = logging.Formatter(FORMAT, datefmt="%m/%d %I:%M:%S %p")
 
         # clean up any pre-existing handlers
         for h in logger.handlers:
@@ -44,7 +44,7 @@ class Logger:
 
         # setup the console handler
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.DEBUG)
+        console_handler.setLevel(logging.INFO)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
@@ -53,7 +53,7 @@ class Logger:
             file_handler = logging.StreamHandler(
                 self._cached_log_stream(log_filename)
             )
-            file_handler.setLevel(logging.DEBUG)
+            file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 
